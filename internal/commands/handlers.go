@@ -11,7 +11,6 @@ import (
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 	"github.com/google/uuid"
-	"honnef.co/go/tools/printf"
 )
 
 func HandlerLogin(s *structure.State, cmd structure.Command) error {
