@@ -7,12 +7,7 @@ import (
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 )
 
-type cliCommand struct {
-	name     string
-	callback func(s *structure.State, cmd structure.Command) error
-}
-
-var handlerLogin = func(s *structure.State, cmd structure.Command) error {
+func HandlerLogin(s *structure.State, cmd structure.Command) error {
 
 	userName := cmd.Args[1]
 
@@ -29,7 +24,7 @@ var handlerLogin = func(s *structure.State, cmd structure.Command) error {
 	return nil
 }
 
-var handlerRegister = func(s *structure.State, cmd structure.Command) error {
+func HandlerRegister(s *structure.State, cmd structure.Command) error {
 
 	userName := cmd.Args[1]
 
@@ -38,20 +33,4 @@ var handlerRegister = func(s *structure.State, cmd structure.Command) error {
 	}
 
 	return nil
-}
-
-func GetCommands() map[string]cliCommand {
-	commands := make(map[string]cliCommand)
-
-	commands["login"] = cliCommand{
-		name:     "login",
-		callback: handlerLogin,
-	}
-
-	commands["register"] = cliCommand{
-		name:     "register",
-		callback: handlerRegister,
-	}
-
-	return commands
 }

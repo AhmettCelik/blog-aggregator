@@ -36,14 +36,10 @@ func startGator() {
 		log.Fatal("error: a username is required.")
 	}
 
-	loginCommand := structure.Command{
-		Name: argsWithoutPath[0],
-		Args: argsWithoutPath,
-	}
-
 	state.Config = &cfg
 
 	cmds.Handlers = make(map[string]func(*structure.State, structure.Command) error)
-	cmds.Register(loginCommand.Name, commands.HandlerLogin)
-	cmds.Run(state, loginCommand)
+	cmds.Register("login", commands.HandlerLogin)
+	cmds.Register("register", commands.HandlerRegister)
+	cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 }
