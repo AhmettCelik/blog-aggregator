@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
@@ -21,7 +22,8 @@ func HandlerLogin(s *structure.State, cmd structure.Command) error {
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("Error checking existing user %v", err)
 	} else if err == sql.ErrNoRows {
-		return fmt.Errorf("Error: register for login! This username does not exists on our database %s", user.Name)
+		log.Fatalf("Error: register for login! This username does not exists on our database %s", user.Name)
+		os.Exit(1)
 	}
 
 	if len(userName) == 0 {
@@ -58,7 +60,8 @@ func HandlerRegister(s *structure.State, cmd structure.Command) error {
 	}
 
 	if existingUser.Name == userName {
-		return fmt.Errorf("Error: Username '%s' is already taken.", userName)
+		log.Fatalf("Error: Username '%s' is already taken.", userName)
+		os.Exit(1)
 	}
 
 	user, err := s.Database.CreateUser(context.Background(), userParams)
