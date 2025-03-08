@@ -1,18 +1,31 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
 	"github.com/AhmettCelik/blog-aggregator/internal/commands"
 	"github.com/AhmettCelik/blog-aggregator/internal/config"
+	"github.com/AhmettCelik/blog-aggregator/internal/database"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
+	_ "github.com/lib/pq"
 )
 
 func startGator() {
 	var cfg config.Config = config.Read()
 	var state *structure.State = new(structure.State)
 	var cmds *structure.Commands = new(structure.Commands)
+
+	dbURL := cfg.DatabaseUrl
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalf("error: failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	dbQueries := database.New(db)
+	state.Database = dbQueries
 
 	argsWithoutPath := os.Args[1:]
 	if len(argsWithoutPath) == 0 {

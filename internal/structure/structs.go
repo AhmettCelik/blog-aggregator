@@ -1,9 +1,13 @@
 package structure
 
-import "github.com/AhmettCelik/blog-aggregator/internal/config"
+import (
+	"github.com/AhmettCelik/blog-aggregator/internal/config"
+	"github.com/AhmettCelik/blog-aggregator/internal/database"
+)
 
 type State struct {
-	Config *config.Config
+	Database *database.Queries
+	Config   *config.Config
 }
 
 type Command struct {
