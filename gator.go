@@ -39,7 +39,9 @@ func startGator() {
 	state.Config = &cfg
 
 	cmds.Handlers = make(map[string]func(*structure.State, structure.Command) error)
+
 	cmds.Register("login", commands.HandlerLogin)
 	cmds.Register("register", commands.HandlerRegister)
+
 	cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 }
