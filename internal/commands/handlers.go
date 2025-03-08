@@ -17,11 +17,18 @@ func HandlerLogin(s *structure.State, cmd structure.Command) error {
 
 	userName := cmd.Args[1]
 
+	user, err := s.Database.GetUser(context.Background(), userName)
+	if err != nil && err != sql.ErrNoRows {
+		return fmt.Errorf("Error checking existing user %v", err)
+	} else if err == sql.ErrNoRows {
+		return fmt.Errorf("Error: register for login! This username does not exists on our database %s", user.Name)
+	}
+
 	if len(userName) == 0 {
 		log.Fatal("Error: Write you username for login")
 	}
 
-	err := s.Config.SetUser(userName)
+	err = s.Config.SetUser(userName)
 	if err != nil {
 		return err
 	}
