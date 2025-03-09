@@ -32,10 +32,6 @@ func startGator() {
 		log.Fatal("error: not enought arguments were provided.")
 	}
 
-	if argsWithoutPath[0] != "reset" && len(argsWithoutPath) < 2 {
-		log.Fatal("error: a username is required.")
-	}
-
 	state.Config = &cfg
 
 	cmds.Handlers = make(map[string]func(*structure.State, structure.Command) error)
@@ -43,6 +39,11 @@ func startGator() {
 	cmds.Register("login", commands.HandlerLogin)
 	cmds.Register("register", commands.HandlerRegister)
 	cmds.Register("reset", commands.HandleReset)
+	cmds.Register("users", commands.HandleUsers)
 
-	cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
+	err = cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
+	if err != nil {
+		log.Fatalf("%v", err)
+		os.Exit(1)
+	}
 }

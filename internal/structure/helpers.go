@@ -11,6 +11,9 @@ func (c *Commands) Run(s *State, cmd Command) error {
 	if !exists {
 		return fmt.Errorf("command not found: %s", cmd.Name)
 	}
-	handler(s, cmd)
+	err := handler(s, cmd)
+	if err != nil {
+		return err
+	}
 	return nil
 }

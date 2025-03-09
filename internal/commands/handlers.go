@@ -16,6 +16,10 @@ import (
 
 func HandlerLogin(s *structure.State, cmd structure.Command) error {
 
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("Error: a username is required.")
+	}
+
 	userName := cmd.Args[1]
 
 	user, err := s.Database.GetUser(context.Background(), userName)
@@ -41,11 +45,12 @@ func HandlerLogin(s *structure.State, cmd structure.Command) error {
 
 func HandlerRegister(s *structure.State, cmd structure.Command) error {
 
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("Error: You must provide a username for registration")
+	}
+
 	now := time.Now()
 	userName := cmd.Args[1]
-	if len(userName) == 0 {
-		log.Fatal("Error: You must provide a username for registration")
-	}
 
 	userParams := database.CreateUserParams{
 		ID:        uuid.New(),
@@ -91,5 +96,22 @@ func HandleReset(s *structure.State, cmd structure.Command) error {
 		return fmt.Errorf("Error deleting users: %v", err)
 	}
 	fmt.Printf("Users successfully reset! Command -> %s", cmd.Name)
+	return nil
+}
+
+func HandleUsers(s *structure.State, cmd structure.Command) error {
+	users, err := s.Database.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("Error getting all users for list: %v", err)
+	}
+
+	for _, value := range users {
+		if value.Name == s.Config.CurrentUserName {
+			fmt.Printf("%s (current)\n", value.Name)
+		} else {
+			fmt.Printf("%s\n", value.Name)
+		}
+	}
+
 	return nil
 }
