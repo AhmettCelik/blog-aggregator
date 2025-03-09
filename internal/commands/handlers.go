@@ -84,3 +84,12 @@ func HandlerRegister(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func handleReset(s *structure.State, cmd structure.Command) error {
+	err := s.Database.DeleteAllUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("Error deleting users: %v", err)
+	}
+	fmt.Printf("Users successfully reset! Command -> %s", cmd.Name)
+	return nil
+}
