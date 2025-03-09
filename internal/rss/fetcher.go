@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"encoding/xml"
 	"fmt"
 	"html"
 	"io"
@@ -11,8 +10,6 @@ import (
 )
 
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
-	var feed RSSFeed
-
 	req, err := http.NewRequestWithContext(ctx, "GET", feedURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error getting request with context: %v", err)
@@ -39,13 +36,14 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		return nil, fmt.Errorf("Error reading response body: %v", err)
 	}
 
-	if err := xml.Unmarshal(data, &feed); err != nil {
-		return nil, fmt.Errorf("Error unmarshaling xml data: %v", err)
+	feed, err := parseXML(data)
+	if err != nil {
+		return nil, err
 	}
 
-	unescapeFeed(&feed)
+	unescapeFeed(feed)
 
-	return &feed, nil
+	return feed, nil
 }
 
 func unescapeFeed(feed *RSSFeed) {

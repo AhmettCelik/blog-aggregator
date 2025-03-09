@@ -115,3 +115,7 @@ func HandleUsers(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func HandleAgg(s *structure.State, cmd structure.Command) error {
+	return nil
+}
