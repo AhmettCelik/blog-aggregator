@@ -7,6 +7,7 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
 )
 
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
@@ -19,9 +20,12 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 
 	req.Header.Set("User-Agent", "gator")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 10 * time.Second}
 	res, err := client.Do(req)
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			fmt.Println("HTTP request timed out...")
+		}
 		return nil, fmt.Errorf("Error sending request or getting response: %v", err)
 	}
 	defer res.Body.Close()
