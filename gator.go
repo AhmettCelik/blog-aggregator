@@ -32,7 +32,7 @@ func startGator() {
 		log.Fatal("error: not enought arguments were provided.")
 	}
 
-	if len(argsWithoutPath) < 2 {
+	if argsWithoutPath[0] != "reset" && len(argsWithoutPath) < 2 {
 		log.Fatal("error: a username is required.")
 	}
 
