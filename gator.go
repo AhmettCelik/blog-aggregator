@@ -42,7 +42,7 @@ func startGator() {
 
 	cmds.Register("login", commands.HandlerLogin)
 	cmds.Register("register", commands.HandlerRegister)
-	cmds.Register("reset", commands.HandlerRegister)
+	cmds.Register("reset", commands.HandleReset)
 
 	cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 }
