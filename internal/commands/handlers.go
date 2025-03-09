@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
+	"github.com/AhmettCelik/blog-aggregator/internal/rss"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 	"github.com/google/uuid"
 )
@@ -79,7 +80,7 @@ func HandlerRegister(s *structure.State, cmd structure.Command) error {
 		return fmt.Errorf("Error setting user: %v", err)
 	}
 
-	userJsonFormat, err := json.MarshalIndent(user, "", " ")
+	userJsonFormat, err := json.MarshalIndent(user, "", "  ")
 	if err != nil {
 		return fmt.Errorf("Error marshaling user data to json: %v", err)
 	}
@@ -117,5 +118,16 @@ func HandleUsers(s *structure.State, cmd structure.Command) error {
 }
 
 func HandleAgg(s *structure.State, cmd structure.Command) error {
+	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+
+	feedJsonFormat, err := json.MarshalIndent(*feed, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Error marshaling rss feed to json: %v", err)
+	}
+	println(string(feedJsonFormat))
+
 	return nil
 }

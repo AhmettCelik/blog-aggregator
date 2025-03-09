@@ -1,4 +1,4 @@
-package internal
+package rss
 
 type RSSFeed struct {
 	Channel struct {

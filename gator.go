@@ -40,6 +40,7 @@ func startGator() {
 	cmds.Register("register", commands.HandlerRegister)
 	cmds.Register("reset", commands.HandleReset)
 	cmds.Register("users", commands.HandleUsers)
+	cmds.Register("agg", commands.HandleAgg)
 
 	err = cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 	if err != nil {
