@@ -131,3 +131,26 @@ func HandleAgg(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func HandleAddFeed(s *structure.State, cmd structure.Command) error {
+	if len(cmd.Args) < 3 {
+		return fmt.Errorf("Error: not enough arguments")
+	}
+
+	now := time.Now()
+	feedName := cmd.Args[1]
+	feedURL := cmd.Args[2]
+
+	users, err := s.Database.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("Error getting all users from database: %v", err)
+	}
+
+	for _, value := range users {
+		if value.Name == s.Config.CurrentUserName {
+			s.Database.CreateFeed()
+		}
+	}
+
+	return nil
+}
