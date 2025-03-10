@@ -179,3 +179,19 @@ func HandleAddFeed(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func HandleFeeds(s *structure.State, cmd structure.Command) error {
+	feedsInfos, err := s.Database.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("Error getting feeds: %v", err)
+	}
+
+	for _, feedInfo := range feedsInfos {
+		fmt.Printf("%s\n", feedInfo.Name)
+		fmt.Printf("%s\n", feedInfo.Url)
+		fmt.Printf("%s\n", feedInfo.UserName)
+		fmt.Printf("\n")
+	}
+
+	return nil
+}
