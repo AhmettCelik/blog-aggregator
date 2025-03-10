@@ -137,6 +137,8 @@ func HandleAddFeed(s *structure.State, cmd structure.Command) error {
 		return fmt.Errorf("Error: not enough arguments")
 	}
 
+	var currentUser database.User
+
 	now := time.Now()
 	feedName := cmd.Args[1]
 	feedURL := cmd.Args[2]
@@ -148,9 +150,32 @@ func HandleAddFeed(s *structure.State, cmd structure.Command) error {
 
 	for _, value := range users {
 		if value.Name == s.Config.CurrentUserName {
-			s.Database.CreateFeed()
+			currentUser = value
 		}
 	}
+
+	if currentUser == (database.User{}) {
+		return fmt.Errorf("Error: there are no logged user right now")
+	}
+
+	feedParams := database.CreateFeedParams{
+		CreatedAt: now,
+		UpdatedAt: now,
+		Name:      feedName,
+		Url:       feedURL,
+		UserID:    currentUser.ID,
+	}
+
+	feed, err := s.Database.CreateFeed(context.Background(), feedParams)
+	if err != nil {
+		return fmt.Errorf("Error creating a feed: %v", err)
+	}
+
+	feedJsonFormat, err := json.MarshalIndent(feed, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Error marshaling feed table struct to json: %v", err)
+	}
+	println(string(feedJsonFormat))
 
 	return nil
 }
