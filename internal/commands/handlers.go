@@ -237,3 +237,28 @@ func HandleFollowing(s *structure.State, cmd structure.Command, user database.Us
 
 	return nil
 }
+
+func HandleUnfollow(s *structure.State, cmd structure.Command, user database.User) error {
+	if len(cmd.Args) < 2 {
+		log.Fatal("You must provide a URL for use this command")
+		os.Exit(1)
+	}
+
+	url := cmd.Args[1]
+	feed, err := s.Database.GetFeedForUrl(context.Background(), url)
+	if err != nil {
+		log.Fatalf("Error getting feed for url: %v", err)
+		os.Exit(1)
+	}
+
+	deleteFeedFollowParams := database.DeleteFeedFollowParams{
+		FeedID: feed.ID,
+		UserID: user.ID,
+	}
+
+	s.Database.DeleteFeedFollow(context.Background(), deleteFeedFollowParams)
+
+	fmt.Printf("Unfollowing: %s\n", feed.Name)
+
+	return nil
+}
