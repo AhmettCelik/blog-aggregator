@@ -233,3 +233,24 @@ func HandleFollow(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func HandleFollowing(s *structure.State, cmd structure.Command) error {
+	currentUser := s.Config.CurrentUserName
+	user, err := s.Database.GetUser(context.Background(), currentUser)
+	if err != nil {
+		log.Fatalf("Error getting current user: %v", err)
+		os.Exit(1)
+	}
+
+	feedFollows, err := s.Database.GetFeetFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		log.Fatalf("Error getting feed follows: %v", err)
+		os.Exit(1)
+	}
+
+	for _, f_f := range feedFollows {
+		fmt.Printf("%s\n", f_f.FeedName)
+	}
+
+	return nil
+}
