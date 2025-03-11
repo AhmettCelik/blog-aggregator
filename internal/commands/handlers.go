@@ -132,38 +132,21 @@ func HandleAgg(s *structure.State, cmd structure.Command) error {
 	return nil
 }
 
-func HandleAddFeed(s *structure.State, cmd structure.Command) error {
+func HandleAddFeed(s *structure.State, cmd structure.Command, user database.User) error {
 	if len(cmd.Args) < 3 {
 		return fmt.Errorf("Error: not enough arguments")
 	}
 
-	var currentUser database.User
-
 	now := time.Now()
 	feedName := cmd.Args[1]
 	feedURL := cmd.Args[2]
-
-	users, err := s.Database.GetUsers(context.Background())
-	if err != nil {
-		return fmt.Errorf("Error getting all users from database: %v", err)
-	}
-
-	for _, value := range users {
-		if value.Name == s.Config.CurrentUserName {
-			currentUser = value
-		}
-	}
-
-	if currentUser == (database.User{}) {
-		return fmt.Errorf("Error: there are no logged user right now")
-	}
 
 	feedParams := database.CreateFeedParams{
 		CreatedAt: now,
 		UpdatedAt: now,
 		Name:      feedName,
 		Url:       feedURL,
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 	}
 
 	feed, err := s.Database.CreateFeed(context.Background(), feedParams)
@@ -175,7 +158,7 @@ func HandleAddFeed(s *structure.State, cmd structure.Command) error {
 		CreatedAt: now,
 		UpdatedAt: now,
 		FeedID:    feed.ID,
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 	}
 
 	_, err = s.Database.CreateFeedFollow(context.Background(), feedFollowParams)
@@ -209,22 +192,16 @@ func HandleFeeds(s *structure.State, cmd structure.Command) error {
 	return nil
 }
 
-func HandleFollow(s *structure.State, cmd structure.Command) error {
+func HandleFollow(s *structure.State, cmd structure.Command, user database.User) error {
 	if len(cmd.Args) < 2 {
 		return fmt.Errorf("Error: you must provide a URL for this command")
 	}
 
 	url := cmd.Args[1]
 	now := time.Now()
-	currentUser := s.Config.CurrentUserName
 	feed, err := s.Database.GetFeedForUrl(context.Background(), url)
 	if err != nil {
 		log.Fatalf("Error getting feed for url: %v", err)
-		os.Exit(1)
-	}
-	user, err := s.Database.GetUser(context.Background(), currentUser)
-	if err != nil {
-		log.Fatalf("Error getting current user: %v", err)
 		os.Exit(1)
 	}
 
@@ -247,14 +224,7 @@ func HandleFollow(s *structure.State, cmd structure.Command) error {
 	return nil
 }
 
-func HandleFollowing(s *structure.State, cmd structure.Command) error {
-	currentUser := s.Config.CurrentUserName
-	user, err := s.Database.GetUser(context.Background(), currentUser)
-	if err != nil {
-		log.Fatalf("Error getting current user: %v", err)
-		os.Exit(1)
-	}
-
+func HandleFollowing(s *structure.State, cmd structure.Command, user database.User) error {
 	feedFollows, err := s.Database.GetFeetFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		log.Fatalf("Error getting feed follows: %v", err)

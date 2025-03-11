@@ -8,6 +8,7 @@ import (
 	"github.com/AhmettCelik/blog-aggregator/internal/commands"
 	"github.com/AhmettCelik/blog-aggregator/internal/config"
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
+	"github.com/AhmettCelik/blog-aggregator/internal/middleware"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 	_ "github.com/lib/pq"
 )
@@ -41,10 +42,10 @@ func startGator() {
 	cmds.Register("reset", commands.HandleReset)
 	cmds.Register("users", commands.HandleUsers)
 	cmds.Register("agg", commands.HandleAgg)
-	cmds.Register("addfeed", commands.HandleAddFeed)
 	cmds.Register("feeds", commands.HandleFeeds)
-	cmds.Register("follow", commands.HandleFollow)
-	cmds.Register("following", commands.HandleFollowing)
+	cmds.Register("addfeed", middleware.MiddlewareLoggedIn(commands.HandleAddFeed))
+	cmds.Register("follow", middleware.MiddlewareLoggedIn(commands.HandleFollow))
+	cmds.Register("following", middleware.MiddlewareLoggedIn(commands.HandleFollowing))
 
 	err = cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 	if err != nil {
