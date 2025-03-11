@@ -195,3 +195,41 @@ func HandleFeeds(s *structure.State, cmd structure.Command) error {
 
 	return nil
 }
+
+func HandleFollow(s *structure.State, cmd structure.Command) error {
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("Error: you must provide a URL for this command")
+	}
+
+	url := cmd.Args[1]
+	now := time.Now()
+	currentUser := s.Config.CurrentUserName
+	feed, err := s.Database.GetFeedForUrl(context.Background(), url)
+	if err != nil {
+		log.Fatalf("Error getting feed for url: %v", err)
+		os.Exit(1)
+	}
+	user, err := s.Database.GetUser(context.Background(), currentUser)
+	if err != nil {
+		log.Fatalf("Error getting current user: %v", err)
+		os.Exit(1)
+	}
+
+	feedFollowParams := database.CreateFeedFollowParams{
+		CreatedAt: now,
+		UpdatedAt: now,
+		FeedID:    feed.ID,
+		UserID:    user.ID,
+	}
+
+	feedFollow, err := s.Database.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		log.Fatalf("Error creating feed follow: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Feed name: %s\n", feedFollow.FeedName)
+	fmt.Printf("Current user name: %s\n", feedFollow.UserName)
+
+	return nil
+}
