@@ -171,6 +171,19 @@ func HandleAddFeed(s *structure.State, cmd structure.Command) error {
 		return fmt.Errorf("Error creating a feed: %v", err)
 	}
 
+	feedFollowParams := database.CreateFeedFollowParams{
+		CreatedAt: now,
+		UpdatedAt: now,
+		FeedID:    feed.ID,
+		UserID:    currentUser.ID,
+	}
+
+	_, err = s.Database.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		log.Fatalf("Error creating feed follow: %v", err)
+		os.Exit(1)
+	}
+
 	feedJsonFormat, err := json.MarshalIndent(feed, "", "  ")
 	if err != nil {
 		return fmt.Errorf("Error marshaling feed table struct to json: %v", err)
