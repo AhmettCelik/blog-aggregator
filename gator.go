@@ -47,6 +47,7 @@ func startGator() {
 	cmds.Register("follow", middleware.MiddlewareLoggedIn(commands.HandleFollow))
 	cmds.Register("following", middleware.MiddlewareLoggedIn(commands.HandleFollowing))
 	cmds.Register("unfollow", middleware.MiddlewareLoggedIn(commands.HandleUnfollow))
+	cmds.Register("browse", commands.HandleBrowse)
 
 	err = cmds.Run(state, structure.Command{Name: argsWithoutPath[0], Args: argsWithoutPath})
 	if err != nil {

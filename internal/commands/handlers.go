@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
@@ -131,6 +132,7 @@ func HandleAgg(s *structure.State, cmd structure.Command) error {
 	ticker := time.NewTicker(timeBetweenRequests)
 	for ; ; <-ticker.C {
 		scrapeFeeds(s)
+		fmt.Printf("Post created! Continuing..\n")
 	}
 }
 
@@ -261,6 +263,32 @@ func HandleUnfollow(s *structure.State, cmd structure.Command, user database.Use
 	s.Database.DeleteFeedFollow(context.Background(), deleteFeedFollowParams)
 
 	fmt.Printf("Unfollowing: %s\n", feed.Name)
+
+	return nil
+}
+
+func HandleBrowse(s *structure.State, cmd structure.Command) error {
+	var limit int32
+
+	if len(cmd.Args) < 2 || cmd.Args[1] == "" {
+		limit = 2
+	} else {
+		limit64, err := strconv.ParseInt(cmd.Args[1], 10, 32)
+		if err != nil {
+			return err
+		}
+		limit = int32(limit64)
+	}
+
+	posts, err := s.Database.GetPostsForUser(context.Background(), limit)
+	if err != nil {
+		return fmt.Errorf("Error getting posts for user: %v", err)
+	}
+
+	for _, post := range posts {
+		fmt.Printf("Title: %s", post.Title)
+		fmt.Printf("Description: %s", post.Description)
+	}
 
 	return nil
 }

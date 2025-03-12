@@ -3,7 +3,10 @@ package commands
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
+	"github.com/AhmettCelik/blog-aggregator/internal/database"
 	"github.com/AhmettCelik/blog-aggregator/internal/rss"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 )
@@ -21,8 +24,32 @@ func scrapeFeeds(s *structure.State) error {
 		return err
 	}
 
+	now := time.Now()
+
 	for _, rssItem := range fetchedFeedItems.Channel.Item {
-		fmt.Printf("%s\n", rssItem.Title)
+		parsedPubDate, err := time.Parse(time.RFC1123Z, rssItem.PubDate)
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("Error date could not be parsed: %v", err)
+		}
+
+		createPostParams := database.CreatePostParams{
+			CreatedAt:   now,
+			UpdatedAt:   now,
+			Title:       rssItem.Title,
+			Url:         rssItem.Link,
+			Description: rssItem.Description,
+			PublishedAt: parsedPubDate,
+			FeedID:      feed.ID,
+		}
+		_, err = s.Database.CreatePost(context.Background(), createPostParams)
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Duplicated item detected: %s\n", rssItem.Title)
+				continue
+			}
+			return fmt.Errorf("Error creating post: %v", err)
+		}
 	}
 	return nil
 }
