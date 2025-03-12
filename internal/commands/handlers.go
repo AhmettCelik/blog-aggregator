@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/AhmettCelik/blog-aggregator/internal/database"
-	"github.com/AhmettCelik/blog-aggregator/internal/rss"
 	"github.com/AhmettCelik/blog-aggregator/internal/structure"
 	"github.com/google/uuid"
 )
@@ -118,18 +117,21 @@ func HandleUsers(s *structure.State, cmd structure.Command) error {
 }
 
 func HandleAgg(s *structure.State, cmd structure.Command) error {
-	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	if err != nil {
-		return err
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("Error: not enough arguments")
 	}
 
-	feedJsonFormat, err := json.MarshalIndent(*feed, "", "  ")
+	timeBetweenRequests, err := time.ParseDuration(cmd.Args[1])
 	if err != nil {
-		return fmt.Errorf("Error marshaling rss feed to json: %v", err)
+		return fmt.Errorf("Error parsing duration string to time.Duration value: %v", err)
 	}
-	println(string(feedJsonFormat))
 
-	return nil
+	fmt.Printf("Collecting feeds every %s...\n", cmd.Args[1])
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
 
 func HandleAddFeed(s *structure.State, cmd structure.Command, user database.User) error {
